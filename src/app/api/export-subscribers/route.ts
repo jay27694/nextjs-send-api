@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stringify } from 'csv-stringify/sync';
-import fs from 'fs';
-import path from 'path';
 
 interface Subscriber {
     ID: string;
@@ -71,19 +69,12 @@ export async function GET(request: NextRequest) {
     // Generate CSV content
     const csvContent = stringify(allSubscribers, { header: true });
 
-    // Write CSV to file
-    const fileName = `subscribers_${listid}_${Date.now()}.csv`;
-    const filePath = path.join(process.cwd(), 'public', fileName);
-    fs.writeFileSync(filePath, csvContent);
-
     // Set headers for file download
     const headers = new Headers();
-    headers.append('Content-Disposition', `attachment; filename=${fileName}`);
+    headers.append('Content-Disposition', `attachment; filename=subscribers_${listid}_${Date.now()}.csv`);
     headers.append('Content-Type', 'text/csv');
-
-    // Read the file and return it in the response
-    const fileContent = fs.readFileSync(filePath);
-    return new NextResponse(fileContent, { status: 200, headers });
+    
+    return new NextResponse(csvContent, { status: 200, headers });
 
     //return NextResponse.json(allSubscribers);
   } catch (error) {
